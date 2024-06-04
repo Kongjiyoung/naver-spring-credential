@@ -16,10 +16,10 @@ public class UserController {
 
     // http://ip주소:8080/oauth/callback?accessToken=htr43uoihf8isrd
     @GetMapping("/oauth/callback")
-    public ResponseEntity<?> oauthCallback(@RequestParam("accessToken") String kakaoAccessToken){
-        System.out.println("스프링에서 받은 카카오토큰 : "+kakaoAccessToken);
+    public ResponseEntity<?> oauthCallback(@RequestParam("accessToken") String naverAccessToken){
+        System.out.println("스프링에서 받은 카카오토큰 : "+naverAccessToken);
 
-        String blogAccessToken = userService.카카오로그인(kakaoAccessToken);
+        String blogAccessToken = userService.네이버로그인(naverAccessToken);
 
         return ResponseEntity.ok().header("Authorization", "Bearer "+blogAccessToken).body(new ApiUtil(null));
     }

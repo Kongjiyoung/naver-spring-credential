@@ -52,7 +52,7 @@ public class UserService {
      *  3. jwt(스프링서버) 생성해서 엡에게 전달
      */
     @Transactional
-    public String 카카오로그인(String kakaoAccessToken) {
+    public String 네이버로그인(String naverAccessToken) {
 
         // 1. RestTemplate 객체 생성
         RestTemplate rt = new RestTemplate();
@@ -60,19 +60,19 @@ public class UserService {
         // 2. 토큰으로 사용자 정보 받기 (PK, Email)
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-        headers.add("Authorization", "Bearer "+kakaoAccessToken);
+        headers.add("Authorization", "Bearer "+naverAccessToken);
 
         HttpEntity<MultiValueMap<String, String>> request =
                 new HttpEntity<>(headers);
 
-        ResponseEntity<KakaoResponse.KakaoUserDTO> response = rt.exchange(
-                "https://kapi.kakao.com/v2/user/me",
+        ResponseEntity<NaverResponse.NaverUserDTO> response = rt.exchange(
+                "https://openapi.naver.com/v1/nid/me",
                 HttpMethod.GET,
                 request,
-                KakaoResponse.KakaoUserDTO.class);
+                NaverResponse.NaverUserDTO.class);
 
         // 3. 해당정보로 DB조회 (있을수, 없을수)
-        String username = "kakao_"+response.getBody().getId();
+        String username = "naver_"+response.getBody().getResponse().getId();
         User userPS = userJPARepository.findByUsername(username)
                 .orElse(null);
 
@@ -84,8 +84,8 @@ public class UserService {
             User user = User.builder()
                     .username(username)
                     .password(UUID.randomUUID().toString())
-                    .email(response.getBody().getProperties().getNickname()+"@nate.com")
-                    .provider("kakao")
+                    .email(response.getBody().getResponse().getEmail())
+                    .provider("naver")
                     .build();
             User returnUser = userJPARepository.save(user);
             return JwtUtil.create(returnUser);
